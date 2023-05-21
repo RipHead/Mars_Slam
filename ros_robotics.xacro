@@ -3,61 +3,61 @@
 <robot name="ros_robotics" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 	<xacro:include filename="lidar.xacro"/>
-
-  <link name='chassis'>
+  <link name="base_footprint"/>
+  <link name='base_link'>
     <pose>0 0 0.1 0 0 0</pose>
 
     <inertial>
       <mass value="10.0"/>
       <origin xyz="0.0 0 0.1" rpy=" 0 0 0"/>
       <inertia
-          ixx="0.5" ixy="0" ixz="0"
-          iyy="1.0" iyz="0"
-          izz="0.1"
+          ixx="2.0" ixy="0" ixz="0"
+          iyy="5.0" iyz="0"
+          izz="3.0"
       />
     </inertial>
 
-    <collision name='collision'>
+    <collision>
       <geometry>
         <box size=".4 .2 .1"/>
       </geometry>
     </collision>
 
-    <visual name='chassis_visual'>
+    <visual>
       <origin xyz="0 0 0" rpy=" 0 0 0"/>
       <geometry>
         <box size=".4 .2 .1"/>
       </geometry>
     </visual>
-
-
+</link>
+<link name="caster_back_link">
     <collision name='caster_collision'>
-      <origin xyz="-0.15 0 -0.05" rpy=" 0 0 0"/>
+      <origin xyz="0 0 0" rpy=" 0 0 0"/>
       <geometry>
         <sphere radius="0.05"/>
       </geometry>
       <surface>
-        <friction>
-          <ode>
-            <mu>0</mu>
-            <mu2>0</mu2>
-            <slip1>1.0</slip1>
-            <slip2>1.0</slip2>
-          </ode>
-        </friction>
+      	<friction>
+      		<mu1 value="0.0"/>
+      		<mu2 value="0.0"/>
+      	</friction>
       </surface>
     </collision>
-
+	
     <visual name='caster_visual'>
-      <origin xyz="-0.15 0 -0.05" rpy=" 0 0 0"/>
+      <origin xyz="0 0 0" rpy=" 0 0 0"/>
       <geometry>
         <sphere radius="0.05"/>
       </geometry>
     </visual>
   </link>
+<joint name="caster_back_joint" type="fixed">
+	<parent link="base_link"/>
+	<child link="caster_back_link"/>
+	<origin xyz="-0.15 0 -0.05" rpy="0 0 0"/>
+</joint> 
 
-
-  <link name="left_wheel">
+  <link name="wheel_left_link">
     <!--origin xyz="0.1 0.13 0.1" rpy="0 1.5707 1.5707"/-->
     <collision name="collision">
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
@@ -82,15 +82,15 @@
     </inertial>
   </link>
 
-  <link name="right_wheel">
+  <link name="wheel_right_link">
     <!--origin xyz="0.1 -0.13 0.1" rpy="0 1.5707 1.5707"/-->
-    <collision name="collision">
+    <collision>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <geometry>
         <cylinder radius="0.1" length="0.05"/>
       </geometry>
     </collision>
-    <visual name="right_wheel_visual">
+    <visual>
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <geometry>
         <cylinder radius="0.1" length="0.05"/>
@@ -106,27 +106,27 @@
         izz="1.0"/>
     </inertial>
   </link>
+  <joint name="base_joint" type="fixed">
+  	<parent link="base_footprint"/>
+  	<child link="base_link"/>
+  	<origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
 
-
-  <joint type="continuous" name="left_wheel_hinge">
+  <joint type="continuous" name="wheel_left_joint">
     <origin xyz="0.1 0.15 0" rpy="0 0 0"/>
-    <child link="left_wheel"/>
-    <parent link="chassis"/>
+    <child link="wheel_left_link"/>
+    <parent link="base_link"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
 
-  <joint type="continuous" name="right_wheel_hinge">
+  <joint type="continuous" name="wheel_right_joint">
     <origin xyz="0.1 -0.15 0" rpy="0 0 0"/>
-    <child link="right_wheel"/>
-    <parent link="chassis"/>
+    <child link="wheel_right_link"/>
+    <parent link="base_link"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
-
-
-
-
 </robot>

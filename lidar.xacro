@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-	<joint name="lidar_joint" type="fixed">
-		<parent link="chassis"/>
-		<child link="laser_frame"/>
-		<origin xyz="0.1 0 0.1" rpy="0 0 0"/>
+	<joint name="scan_joint" type="fixed">
+		<parent link="base_link"/>
+		<child link="base_scan"/>
+		<origin xyz="0.1 0 0.07" rpy="0 0 0"/>
 	</joint>
 	
-	<link name="laser_frame">
+	<link name="base_scan">
 		<visual>
 			<geometry>
 				<cylinder radius="0.05" length="0.04"/>
@@ -21,7 +21,7 @@
     </collision>
 		
 	</link>
-	<gazebo reference="laser_frame">
+	<gazebo reference="base_scan">
 		<sensor name="laser" type="ray">
 			<pose> 0 0 0 0 0 0</pose>
 			<update_rate>10</update_rate>
@@ -41,13 +41,126 @@
 					<resolution>0.01</resolution>
 				</range>
 			</ray>
-			<plugin name="laser_controller" filename="libgazebo_ros_ray_sensor.so">
-				<ros>
-					<argument>~/out:=scan</argument>
-				</ros>
-				<output_type>sensor_msgs/LaserScan</output_type>
-				<frame_name>laser_frame</frame_name>
+			<plugin name="gazebo_ros_lds_lfcd_controller" filename="libgazebo_ros_laser.so">
+				<topicName>scan</topicName>
+        <frameName>base_scan</frameName>
 			</plugin>
 		</sensor>
 	</gazebo>
+	
+
+    <joint name="imu_joint" type="fixed">
+       <parent link="base_link"/>
+       <child link="imu_link"/>
+    <origin xyz="-0.15 0 0.08" rpy="0 0 0"/>
+    </joint>
+    
+	<link name="imu_link">
+		<visual>
+			<geometry>
+				<box size="0.04 0.04 0.04"/>
+			</geometry>
+		</visual>
+		<collision name="collision">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.04 0.04"/>
+      </geometry>
+    </collision>
+		
+	</link>
+	<gazebo reference="imu_link">
+    		<sensor type="imu" name="imu">
+      			<always_on>true</always_on>
+    		</sensor>
+    		<material>Gazebo/FlatBlack</material>
+  	</gazebo>
+  	<gazebo>
+    <plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
+      <alwaysOn>true</alwaysOn>
+      <bodyName>imu_link</bodyName>
+      <frameName>imu_link</frameName>
+      <topicName>imu</topicName>
+      <serviceName>imu_service</serviceName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <updateRate>0</updateRate>
+      <imu>
+        <noise>
+          <type>gaussian</type>
+          <rate>
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </rate>
+          <accel>
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </accel>
+        </noise>
+      </imu>
+    </plugin>
+  </gazebo>
+  <gazebo>
+    <plugin name="ros_robotics_controller" filename="libgazebo_ros_diff_drive.so">
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometrySource>world</odometrySource>
+      <publishOdomTF>true</publishOdomTF>
+      <robotBaseFrame>base_footprint</robotBaseFrame>
+      <publishWheelTF>true</publishWheelTF>
+      <publishTf>true</publishTf>
+      <publishWheelJointState>true</publishWheelJointState>
+      <legacyMode>false</legacyMode>
+      <updateRate>30</updateRate>
+      <leftJoint>wheel_left_joint</leftJoint>
+      <rightJoint>wheel_right_joint</rightJoint>
+      <wheelSeparation>0.160</wheelSeparation>
+      <wheelDiameter>0.066</wheelDiameter>
+      <wheelAcceleration>1</wheelAcceleration>
+      <wheelTorque>10</wheelTorque>
+      <rosDebugLevel>na</rosDebugLevel>
+    </plugin>
+  </gazebo>
+  
+  
+  <gazebo reference="base_link">
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+  <gazebo reference="wheel_left_link">
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
+    <kp>500000.0</kp>
+    <kd>10.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <fdir1>1 0 0</fdir1>
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+
+<gazebo reference="wheel_right_link">
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
+    <kp>500000.0</kp>
+    <kd>10.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <fdir1>1 0 0</fdir1>
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+  <gazebo reference="caster_back_link">
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>1.0</maxVel>
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
 </robot>
